@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    >
+
+   <LinearLayout
+       android:id="@+id/dialog"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_alignParentRight="true"
+       android:orientation="vertical" >
+
+       <LinearLayout
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_above="@+id/linearLayout1"
+           android:layout_alignParentLeft="true"
+           android:layout_alignParentRight="true"
+           android:gravity="center"
+           android:orientation="vertical" >
+
+           <TextView
+               android:id="@+id/tv"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:gravity="center"
+               android:textSize="10dp" 
+               android:text="請點選" />
+           
+           <Button
+               android:id="@+id/dialog_button_ok"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:layout_weight="1"
+               android:text="OK" />
+<!-- 
+           <VideoView
+               android:id="@+id/video"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:layout_marginTop="10dp" />
+-->
+       </LinearLayout>
+
+
+   </LinearLayout>
+
+</LinearLayout>
+
