@@ -59,7 +59,7 @@ public class MainActivity extends ActionBarActivity implements ServiceConnection
         dragImageView 	= (MySurfaceView) findViewById(R.id.div_main);
 
         //讓圖片 = 螢幕寬高
-        Bitmap bmp = BitmapUtil.ReadBitmapById(this, R.drawable.pp,
+        Bitmap bmp = BitmapUtil.ReadBitmapById(this, R.drawable.lab,
                 window_width, window_height);
 
 
@@ -120,7 +120,7 @@ public class MainActivity extends ActionBarActivity implements ServiceConnection
         // make the service to stick around by actually starting it
         startService(new Intent(this, MonitorService.class));
 
-        //log("beacons count" + String.valueOf(mService.getBeacons().size()));
+        log("beacons count" + String.valueOf(mService.getBeacons().size()));
     }
 
     @Override

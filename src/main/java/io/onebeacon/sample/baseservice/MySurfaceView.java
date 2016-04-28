@@ -113,7 +113,7 @@ public class MySurfaceView extends SurfaceView implements SurfaceHolder.Callback
         people_savedMatrix 	= new Matrix(); 
         matrix.setTranslate(0f, 0f);
         savedMatrix.setTranslate(0f, 0f);   
-        people_matrix.setTranslate(0f, 0f);
+        people_matrix.setTranslate(370f, 460f);
         people_savedMatrix.setTranslate(0f, 0f);
         
         first = true;
@@ -121,22 +121,22 @@ public class MySurfaceView extends SurfaceView implements SurfaceHolder.Callback
 	}
 
 	public static void bm(Bitmap bm){
-    	bitmap 		 = 	bm;
-    	bitmapWidth  = 	bitmap.getWidth(); 
-        bitmapHeight = 	bitmap.getHeight(); 
-        Screen_Width = 	bitmap.getWidth();
-        MAX_W 		 = 	bitmap.getWidth() * 3;
-        MIN_W 		 = 	bitmap.getWidth();
+    	bitmap 		 =     	bm;
+    	bitmapWidth   =     	bitmap.getWidth();
+        bitmapHeight   =     	bitmap.getHeight();
+        Screen_Width  =  	bitmap.getWidth();
+        MAX_W 	 =     	bitmap.getWidth() * 3;
+        MIN_W 		 =   	bitmap.getWidth();
     }   
 
     //TODO 初始化  
     @Override  
     public void run() {       
         //初始iBeacon位置 *模擬的
-        textPoint[0] 	= new Point(0,0);
-        textPoint[1] 	= new Point(0,1050);
-        textPoint[2] 	= new Point(650,1050);
-        textPoint[3]	= new Point(137,425);
+        textPoint[0] 	= new Point(0,120);
+        textPoint[1] 	= new Point(550,90);
+        textPoint[2] 	= new Point(350,650);
+        textPoint[3]	= new Point(200,900);
         matrix.setTranslate(0f, 0f);
        
         //模擬 people_matrix.setTranslate(275, 546);
@@ -156,6 +156,8 @@ public class MySurfaceView extends SurfaceView implements SurfaceHolder.Callback
     public static int realtime() {
     
         double[] newPeople_distance = new double[2];
+        //newPeople_distance = SimpleIntersect();
+        //主要方法 記得要改回來
         newPeople_distance = Intersect();
         //two = Intersect(1,2);
         Log.e("newPeople_distance="+newPeople_distance[0],"newPeople_distance[1]"+newPeople_distance[1]);
@@ -175,7 +177,8 @@ public class MySurfaceView extends SurfaceView implements SurfaceHolder.Callback
         }
 		
 		float[] matrixValues = new float[9];     
-     	people_matrix.getValues(matrixValues);   	
+     	people_matrix.getValues(matrixValues);
+        //判斷是否進入beacon範圍
     	for(int i = 0 ;i<Values.num;i++)
         {
     		float[] nodeValues = new float[9];     
@@ -191,7 +194,7 @@ public class MySurfaceView extends SurfaceView implements SurfaceHolder.Callback
             if(one != null && two != null)
             {
             	//顯示三圓相交座標
-                End : for(int i =0 ; i<4 ; i=i+2)
+                End : (ifornt i =0 ; i<4 ; i=i+2)
                 {
                 	for(int j = 0 ; j<4 ; j=j+2)
                 	{
@@ -278,10 +281,10 @@ public class MySurfaceView extends SurfaceView implements SurfaceHolder.Callback
                 break;  
             }  
             case MotionEvent.ACTION_POINTER_DOWN:// 第二個Touch  
-            {            
-                  
+            {
+                Log.e("oldDistance","oldDistance = "+oldDistance);
                 oldDistance = getDistance(event);// 計算第二個touch時，兩點之間距離    
-                if(oldDistance>10f){  
+                if(oldDistance>10f){
                     action = ZOOM;  
                     savedMatrix.set(matrix); 
                     for(int i = 0 ;i<Values.num;i++)
@@ -389,8 +392,43 @@ public class MySurfaceView extends SurfaceView implements SurfaceHolder.Callback
         float x = (p1.x-p2.x) * (p1.x-p2.x);            
         float y = (p1.y-p2.y) * (p1.y-p2.y);  
         return (float) Math.sqrt(x+y);  
-    }        
-  
+    }
+
+    private static double[] SimpleIntersect() {
+        double[] intersect = {0,0,0,0};// x1=0 , y1=1 , x2=2 , vy2=3;
+        Double[] r={0.0,0.0,0.0};
+
+        //計算平均的位置
+        r[0] = (double) Values.iBeaconArg[0];
+        r[1] = (double) Values.iBeaconArg[1];
+        r[2] = (double) Values.iBeaconArg[2];
+        Log.e("first="+first,"r1="+r[0]+",r2="+r[1]+",r3="+r[2]);
+
+        if(r[0]!=0 && r[1]!=0 && r[2]!=0)
+        {
+            if(r[0] >= r[1] && r[0] >= r[2]){
+                intersect[0] = 20;
+                intersect[1] = 140;
+            }
+            else if(r[1] >= r[0] && r[1] >= r[2]){
+                intersect[0] = 530;
+                intersect[1] = 110;
+            }
+            else{
+                intersect[0] = 350;
+                intersect[1] = 630;
+            }
+            Log.e("intersect msg","is not zero-(" + intersect[0] + "," + intersect[1] +")");
+        }
+        else
+        {
+            intersect[0] = 0;
+            intersect[1] = 0;
+        }
+
+        return intersect;
+    }
+
     //TODO 計算三點相交座標
     private static double[] Intersect() {
     	double[] intersect = {0,0,0,0};// x1=0 , y1=1 , x2=2 , vy2=3;
@@ -408,7 +446,7 @@ public class MySurfaceView extends SurfaceView implements SurfaceHolder.Callback
     	//接下來計算最新的位置
     	else
     	{
-    		if(MyBeaconsMonitor.tmp == MyBeaconsMonitor.ARG -1)
+            if(MyBeaconsMonitor.tmp == MyBeaconsMonitor.ARG -1)
     		{
             	for(int i=0;i<Values.num-1;i++)
             	{
@@ -419,7 +457,7 @@ public class MySurfaceView extends SurfaceView implements SurfaceHolder.Callback
             		}
             		r[i] = (double) sum/MyBeaconsMonitor.ARG;
             	}
-            	Log.e("first="+first,"r1="+r[0]+",r2="+r[1]+",r3="+r[2]);
+            	Log.e("continue="+first,"r1="+r[0]+",r2="+r[1]+",r3="+r[2]);
     		}
     	}
     	if(r[0]!=0 && r[1]!=0 && r[2]!=0)
@@ -428,6 +466,13 @@ public class MySurfaceView extends SurfaceView implements SurfaceHolder.Callback
     		double f1 = (Math.pow(r[0], 2) - Math.pow(r[2], 2) + Math.pow(textPoint[2].x, 2) + Math.pow(textPoint[2].y, 2)) / (2 * textPoint[2].y);
     		double f2 = ((textPoint[2].x) / (textPoint[2].y)) * intersect[1];
     		intersect[0] = f1 - f2;
+
+            if(intersect[0] <= 0) intersect[0] = 0;
+            else if(intersect[0] >= MainActivity.window_width ) intersect[0] = MainActivity.window_width;
+            if(intersect[1] <= 0) intersect[1] = 0;
+            else if(intersect[1] >= MainActivity.window_height ) intersect[1] = MainActivity.window_height;
+
+            Log.e("intersect msg","is not zero-(" + intersect[0] + "," + intersect[1] +")");
     	}
     	else
     	{
@@ -493,6 +538,7 @@ public class MySurfaceView extends SurfaceView implements SurfaceHolder.Callback
 	}
     
     //Matrix狀態
+    //存檔
     private static void Matrix_Status() {
 		// TODO Auto-generated method stub
     	matrix.set(savedMatrix); 

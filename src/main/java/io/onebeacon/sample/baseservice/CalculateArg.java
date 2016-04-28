@@ -1,8 +1,8 @@
 package io.onebeacon.sample.baseservice;
 /*
- * 
+ *
  * �ȮɨS�Ψ�
- * 
+ *
  */
 
 import java.util.HashMap;
@@ -43,7 +43,7 @@ public class CalculateArg {
     		map = new HashMap<Float, Integer>();
     	}
     	public void addValue(Float f) {
-    		f *= Values.Scale_W*100; //�Z�� * ��Ҥ� * ���⦨���� 
+    		f *= Values.Scale_W*100; //公尺距離轉像素距離
     		count++;
 	    	if ((max == 0f || f > max) && map.size() < num) {
 	
@@ -112,8 +112,29 @@ public class CalculateArg {
 		Log.i("myMap="+myMap,"myMap.max="+myMap.max+",myMap.min="+myMap.min);
 		Log.i(LOG,"all Count = "+ allCount + ", key size = " + myMap.map.size());
 		myMap.avg = allSum/allCount;
+
 		return myMap.avg;
 	}
+
+    public static boolean dataClear(MyMap myMap) {
+        boolean full = true;
+        int allCount = 0;
+        Set<Float> keys = myMap.map.keySet();
+
+        for( Float key : keys){
+            if(key == myMap.max || key == myMap.min){
+                continue;
+            }
+            int count = myMap.map.get(key);
+            allCount += count;
+        }
+        if(allCount <= 100){
+            full = false;
+        }
+        Log.i(LOG,"all Count = "+ allCount + ", key size = " + myMap.map.size());
+
+        return full;
+    }
 	
 	public static Float SD(MyMap myMap) {
 		int allCount = 0;
