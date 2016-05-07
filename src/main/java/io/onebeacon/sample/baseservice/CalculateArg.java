@@ -30,12 +30,15 @@ public class CalculateArg {
 	public IndoorLoc in2 = new IndoorLoc(0, 4.0, 0); 	 // Purple FA:D1:3D:2E:D0:AB
 	public IndoorLoc in3 = new IndoorLoc(3.3, 2.0, 0);   // Green  C5:97:21:39:F8:78
 	public static int num = 4;//�����X�ӭȫ�,�N���A�W�[�Ӥj�ΤӤp����
+	public static int maxSize = 14;
 
 	public static class MyMap {
 
     	public Map<Float, Integer> map;	
     	public Float max = 0f;	
     	public Float min = 0f;
+        public Float max2 = 0f;
+        public Float min2 = 0f;
     	public int count = 0;
     	public Float avg = 0f;
 
@@ -45,12 +48,15 @@ public class CalculateArg {
     	public void addValue(Float f) {
     		f *= Values.Scale_W*100; //公尺距離轉像素距離
     		count++;
-	    	if ((max == 0f || f > max) && map.size() < num) {
-	
-	    		max = f;		
-	    	}		
-	    	if ((min == 0f || f < min) && map.size() < num) {	
-	    		min = f;		
+	    	if ((max2 == 0f || f > max2) && map.size() < maxSize) {
+                max2 = f;
+                if((max == 0f || max2 > max))
+                    max = f;
+	    	}
+	    	if ((min2 == 0f || f < min2) && map.size() < maxSize) {
+	    		min2 = f;
+                if((min == 0f || min > min2))
+                    min = f;
 	    	}
 	    	if( map.containsKey(f)){		
 		    	int count = map.get(f);			
@@ -65,11 +71,11 @@ public class CalculateArg {
     	public void addValueSecond(Float f) {
     		f *= Values.Scale_W*100; //�Z�� * ��Ҥ� * ���⦨���� 
     		count++;
-	    	if ((max == 0f || f > max) && map.size() < num) {
+	    	if ((max == 0f || f > max) && map.size() < maxSize) {
 	
 	    		max = f;		
 	    	}		
-	    	if ((min == 0f || f < min) && map.size() < num) {	
+	    	if ((min == 0f || f < min) && map.size() < maxSize) {
 	    		min = f;		
 	    	}
 	    	if( map.containsKey(f)){		
@@ -102,7 +108,7 @@ public class CalculateArg {
 		Set<Float> keys = myMap.map.keySet();
 		
 		for( Float key : keys){
-    		if(key == myMap.max || key == myMap.min){
+    		if(key >= myMap.max2 || key <= myMap.min2){
     			continue;
     		}
     		int count = myMap.map.get(key);
@@ -116,7 +122,7 @@ public class CalculateArg {
 		return myMap.avg;
 	}
 
-    public static boolean dataClear(MyMap myMap) {
+    public static boolean dataAmount(MyMap myMap) {
         boolean full = true;
         int allCount = 0;
         Set<Float> keys = myMap.map.keySet();
@@ -128,7 +134,7 @@ public class CalculateArg {
             int count = myMap.map.get(key);
             allCount += count;
         }
-        if(allCount <= 100){
+        if(allCount <= maxSize){
             full = false;
         }
         Log.i(LOG,"all Count = "+ allCount + ", key size = " + myMap.map.size());

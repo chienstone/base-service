@@ -84,6 +84,7 @@ public class MainActivity extends ActionBarActivity implements ServiceConnection
         node_b.setText(Values.node_name[1]);
         node_c.setText(Values.node_name[2]);
         node_d.setText(Values.node_name[3]);
+
         //Dialog樣式
         DialogData 		= new Dialog(MainActivity.this,R.style.MyDialog);
         Dialog 			= new Dialog(MainActivity.this,R.style.MyDialog);

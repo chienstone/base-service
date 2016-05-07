@@ -71,7 +71,7 @@ public class MySurfaceView extends SurfaceView implements SurfaceHolder.Callback
     private float  	oldDistance;
 	private float  	newDistance;
     private static 	Point[]  	textPoint 	= new Point[Values.num]; //iBeacon座標位置 	
-    private static  double[] 	oldPeople_distance = {0.0,0.0};  //舊的人位置
+    public static  double[] 	oldPeople_distance = {0.0,0.0};  //舊的人位置
     private static 	boolean  	first;
     //private static IndoorLoc	People_Loc =  new CalculateArg.IndoorLoc(0,0,0);
     //private static Node[] iBeacon = new Node[4];//還沒寫好
@@ -96,7 +96,8 @@ public class MySurfaceView extends SurfaceView implements SurfaceHolder.Callback
         	Values.node_matrix[i] 		= new Matrix();  
         	Values.node_savedMatrix[i] 	= new Matrix();
         	Values.node_matrix[i].setTranslate(0f, 0f); 
-        	Values.node_savedMatrix[i].setTranslate(0f, 0f); 
+        	Values.node_savedMatrix[i].setTranslate(0f, 0f);
+            Values.nodeInRange[i] = false;
         	
         	/*
         	iBeacon[i] = new Node(BitmapFactory.decodeResource(getResources(), id),new Matrix(),new Matrix());
@@ -133,9 +134,9 @@ public class MySurfaceView extends SurfaceView implements SurfaceHolder.Callback
     @Override  
     public void run() {       
         //初始iBeacon位置 *模擬的
-        textPoint[0] 	= new Point(0,120);
-        textPoint[1] 	= new Point(550,90);
-        textPoint[2] 	= new Point(350,650);
+        textPoint[0] 	= new Point(0,100);
+        textPoint[1] 	= new Point(500,100);
+        textPoint[2] 	= new Point(500,800);
         textPoint[3]	= new Point(200,900);
         matrix.setTranslate(0f, 0f);
        
@@ -144,7 +145,7 @@ public class MySurfaceView extends SurfaceView implements SurfaceHolder.Callback
         Log.e("bitmapWidth="+bitmapWidth,"bitmapHeight"+bitmapHeight);
         for(int i=0;i<Values.num;i++)
         {
-        	Values.node_matrix[i].setTranslate(textPoint[i].x,textPoint[i].y); 
+        	Values.node_matrix[i].setTranslate(textPoint[i].x, textPoint[i].y);
         	//iBeacon[i].getNodeMatrix().setTranslate(textPoint[i].x+100,textPoint[i].y);
         }
    
@@ -160,14 +161,14 @@ public class MySurfaceView extends SurfaceView implements SurfaceHolder.Callback
         //主要方法 記得要改回來
         newPeople_distance = Intersect();
         //two = Intersect(1,2);
-        Log.e("newPeople_distance="+newPeople_distance[0],"newPeople_distance[1]"+newPeople_distance[1]);
+        Log.e("newPeople_distance[0]="+newPeople_distance[0],"newPeople_distance[1]"+newPeople_distance[1]);
         Log.e("oldPeople_distance[0]="+oldPeople_distance[0],"oldPeople_distance[1]="+oldPeople_distance[1]);
         
         //新位置與舊位置差別只在比例尺之內,以及舊位置等於(0,0)
-        if((Math.sqrt(Math.pow(oldPeople_distance[0]-newPeople_distance[0],2)+Math.pow(oldPeople_distance[1]-newPeople_distance[1],2))
-           >  55
+        if(/*(Math.sqrt(Math.pow(oldPeople_distance[0]-newPeople_distance[0],2)+Math.pow(oldPeople_distance[1]-newPeople_distance[1],2))
+           >  20
            || (oldPeople_distance[0] == 0 && oldPeople_distance[1] == 0))
-           && newPeople_distance[0] != 0.0 && newPeople_distance[1] != 0.0)
+           && */newPeople_distance[0] != 0.0 && newPeople_distance[1] != 0.0)
         {
         	Log.e("差異過大","MOVE");
         	people_matrix.setTranslate((float)newPeople_distance[0],(float)newPeople_distance[1]);
@@ -175,10 +176,10 @@ public class MySurfaceView extends SurfaceView implements SurfaceHolder.Callback
     		Matrix_Status();  	
     		oldPeople_distance = newPeople_distance;
         }
-		
-		float[] matrixValues = new float[9];     
-     	people_matrix.getValues(matrixValues);
+
         //判斷是否進入beacon範圍
+        float[] matrixValues = new float[9];
+     	people_matrix.getValues(matrixValues);
     	for(int i = 0 ;i<Values.num;i++)
         {
     		float[] nodeValues = new float[9];     
@@ -338,7 +339,7 @@ public class MySurfaceView extends SurfaceView implements SurfaceHolder.Callback
         	if(matrixValues[2] < 6 && (matrixValues[2] + (currentPoint.x-startPoint.x)) < 6 && (bitmapWidth + matrixValues[2] + (currentPoint.x-startPoint.x)) > Screen_Width - 6
         			|| ((currentPoint.x-startPoint.x) < 0) && matrixValues[2] >= 0)
             {
-        		matrix.postTranslate((float)(currentPoint.x-startPoint.x), (float)(currentPoint.y-startPoint.y));    
+        		matrix.postTranslate((float) (currentPoint.x - startPoint.x), (float) (currentPoint.y - startPoint.y));
 	            people_matrix.postTranslate((float)(currentPoint.x-startPoint.x), (float)(currentPoint.y-startPoint.y));    
 	            for(int i = 0 ;i<Values.num;i++)
 	            {
@@ -394,7 +395,7 @@ public class MySurfaceView extends SurfaceView implements SurfaceHolder.Callback
         return (float) Math.sqrt(x+y);  
     }
 
-    private static double[] SimpleIntersect() {
+    /*private static double[] SimpleIntersect() {
         double[] intersect = {0,0,0,0};// x1=0 , y1=1 , x2=2 , vy2=3;
         Double[] r={0.0,0.0,0.0};
 
@@ -427,7 +428,7 @@ public class MySurfaceView extends SurfaceView implements SurfaceHolder.Callback
         }
 
         return intersect;
-    }
+    }*/
 
     //TODO 計算三點相交座標
     private static double[] Intersect() {
@@ -441,7 +442,8 @@ public class MySurfaceView extends SurfaceView implements SurfaceHolder.Callback
         	r[1] = (double) Values.iBeaconArg[1];
         	r[2] = (double) Values.iBeaconArg[2];
         	Log.e("first="+first,"r1="+r[0]+",r2="+r[1]+",r3="+r[2]);
-        	first = false;
+        	//NOTE 測試
+        	//first = false;
     	}
     	//接下來計算最新的位置
     	else
@@ -455,22 +457,27 @@ public class MySurfaceView extends SurfaceView implements SurfaceHolder.Callback
             		{
             			sum += Values.iBeaconNew[i][j];
             		}
-            		r[i] = (double) sum/MyBeaconsMonitor.ARG;
+            		r[i] = (double) sum / MyBeaconsMonitor.ARG;
             	}
             	Log.e("continue="+first,"r1="+r[0]+",r2="+r[1]+",r3="+r[2]);
     		}
     	}
     	if(r[0]!=0 && r[1]!=0 && r[2]!=0)
     	{
-    		intersect[1] = (Math.pow(r[0], 2) - Math.pow(r[1], 2) + Math.pow(textPoint[1].y, 2)) / (2 * textPoint[1].y);
+    		/*intersect[1] = (Math.pow(r[0], 2) - Math.pow(r[1], 2) + Math.pow(textPoint[1].y, 2)) / (2 * textPoint[1].y);
     		double f1 = (Math.pow(r[0], 2) - Math.pow(r[2], 2) + Math.pow(textPoint[2].x, 2) + Math.pow(textPoint[2].y, 2)) / (2 * textPoint[2].y);
     		double f2 = ((textPoint[2].x) / (textPoint[2].y)) * intersect[1];
-    		intersect[0] = f1 - f2;
+    		intersect[0] = f1 - f2;*/
+
+            double S = (Math.pow(textPoint[2].x, 2.) - Math.pow(textPoint[1].x, 2.) + Math.pow(textPoint[2].y, 2.) - Math.pow(textPoint[1].y, 2.) + Math.pow(r[1], 2.) - Math.pow(r[2], 2.)) / 2.0;
+            double T = (Math.pow(textPoint[0].x, 2.) - Math.pow(textPoint[1].x, 2.) + Math.pow(textPoint[0].y, 2.) - Math.pow(textPoint[1].y, 2.) + Math.pow(r[2], 2.) - Math.pow(r[0], 2.)) / 2.0;
+            intersect[1] = ((T * (textPoint[1].x - textPoint[2].x)) - (S * (textPoint[1].x - textPoint[0].x))) / (((textPoint[0].y - textPoint[1].y) * (textPoint[1].x - textPoint[2].x)) - ((textPoint[2].y - textPoint[1].y) * (textPoint[1].x - textPoint[0].x)));
+            intersect[0] = ((intersect[1] * (textPoint[0].y - textPoint[1].y)) - T) / (textPoint[1].x - textPoint[0].x);
 
             if(intersect[0] <= 0) intersect[0] = 0;
-            else if(intersect[0] >= MainActivity.window_width ) intersect[0] = MainActivity.window_width;
+            else if(intersect[0] >=650 ) intersect[0] = 650;
             if(intersect[1] <= 0) intersect[1] = 0;
-            else if(intersect[1] >= MainActivity.window_height ) intersect[1] = MainActivity.window_height;
+            else if(intersect[1] >= 1000 ) intersect[1] = 1000;
 
             Log.e("intersect msg","is not zero-(" + intersect[0] + "," + intersect[1] +")");
     	}
@@ -562,8 +569,10 @@ public class MySurfaceView extends SurfaceView implements SurfaceHolder.Callback
         c.drawBitmap(people, people_matrix, paint);
         for(int i=0;i<Values.num;i++)
         {
-        	Values.node_savedMatrix[i].set(Values.node_matrix[i]);
-        	c.drawBitmap(Values.node[i], Values.node_matrix[i], paint); 
+        	if(Values.nodeInRange[i]) {
+                Values.node_savedMatrix[i].set(Values.node_matrix[i]);
+                c.drawBitmap(Values.node[i], Values.node_matrix[i], paint);
+            }
         	
         	//iBeacon[i].getNodesavedMatrix().set(iBeacon[i].getNodeMatrix());
         	//c.drawBitmap(iBeacon[i].getNode(), iBeacon[i].getNodeMatrix(), paint); 
