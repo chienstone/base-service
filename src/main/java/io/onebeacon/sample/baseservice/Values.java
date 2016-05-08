@@ -7,10 +7,10 @@ import android.graphics.Matrix;
 public class Values {
 	
 	public static 	int 		num 			 = 4;//node數量
-	public static 	int 		Scale_W 		 = 1100/360;//手機畫面與真實地圖的比例尺
-	public static 	int 		Scale_H 		 = 1700/560;
-	public static	int			Map_W			 =1100;//真實地圖的寬
-	public static	int			Map_H			 =1700;
+	public static 	int 		Scale_W 		 = (1290 * 25) /720;//手機畫面與真實地圖的比例尺
+	public static 	int 		Scale_H 		 = (1880 * 25) /1020;
+	public static	int			Map_W			 =1290;//真實地圖的寬
+	public static	int			Map_H			 =1880;
 	public static  	Bitmap[] 	node 			 = new Bitmap[num];
 	public static  	Matrix[] 	node_matrix 	 = new Matrix[num];  //iBeacon物件
 	public static  	Matrix[] 	node_savedMatrix = new Matrix[num]; 
