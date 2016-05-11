@@ -21,6 +21,7 @@ public class Values {
 	public static  	float[]		iBeaconSd 		 = new float[num];//計算每個beacon距離標準差
 	public static  	float[][]	iBeaconNew 		 = new float[num][4];
 	public static	String[]	iBeaconMAC		 = {"20:C3:8F:D5:02:42","20:C3:8F:D5:2D:90","20:C3:8F:D5:2D:CA",null};
+	public static float distance[] = new float[num];
 	//iBeacon
 	public static final String 	EXTRAS_TARGET_ACTIVITY 			= "extrasTargetActivity";
 	public static final String 	EXTRAS_BEACON 		  			= "extrasBeacon";

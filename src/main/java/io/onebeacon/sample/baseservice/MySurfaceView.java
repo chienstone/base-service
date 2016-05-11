@@ -8,8 +8,11 @@ import java.util.TimerTask;
 import io.onebeacon.sample.baseservice.CalculateArg.IndoorLoc;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -17,6 +20,7 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.net.Uri;
 import android.os.Looper;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -113,7 +117,7 @@ public class MySurfaceView extends SurfaceView implements SurfaceHolder.Callback
         people_savedMatrix 	= new Matrix(); 
         matrix.setTranslate(0f, 0f);
         savedMatrix.setTranslate(0f, 0f);   
-        people_matrix.setTranslate(370f, 460f);
+        people_matrix.setTranslate(120f, 300f);
         people_savedMatrix.setTranslate(0f, 0f);
         
         first = true;
@@ -185,8 +189,13 @@ public class MySurfaceView extends SurfaceView implements SurfaceHolder.Callback
     		Values.node_matrix[i].getValues(nodeValues);
     		//Log.e("ID="+i+",兩點距離="+Math.sqrt(Math.pow(matrixValues[2]-nodeValues[2],2)+Math.pow(matrixValues[5]-nodeValues[5],2)),"Values.node_range[i]="+Values.node_range[i]);  		
     		//計算兩點直線距離,若小於node範圍
-    		if(Math.sqrt(Math.pow(matrixValues[2]-nodeValues[2],2)+Math.pow(matrixValues[5]-nodeValues[5],2)) <= Values.node_range[i])
+    		/*if(Math.sqrt(Math.pow(matrixValues[2]-nodeValues[2],2)+Math.pow(matrixValues[5]-nodeValues[5],2)) <= Values.node_range[i])
     		{		
+    			return i;
+    		}*/
+
+            if(Values.distance[i] <= Values.node_range[i])
+    		{
     			return i;
     		}
         } 

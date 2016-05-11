@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.os.HandlerThread;
 import android.renderscript.Sampler;
 import android.util.Log;
 import android.view.Gravity;
@@ -20,6 +21,7 @@ import android.widget.TextView;
 import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Timer;
 import java.util.UUID;
 
 import io.onebeacon.api.Beacon;
@@ -75,6 +77,7 @@ class MyBeaconsMonitor extends BeaconsMonitor {
             //Beacon_SD();
 
            int num = MySurfaceView.realtime();
+
             Data_Show();
             //抵達beacon觸發
             if(num != Values.num)
@@ -83,7 +86,8 @@ class MyBeaconsMonitor extends BeaconsMonitor {
                 if(!MainActivity.DialogWeb.isShowing())
                 {
                     if(!MainActivity.Dialog.isShowing())
-                        Dialog_Show(num);
+                       Dialog_Show(num);
+                   // MainActivity.Dialog_Show(num);
                 }
             }
             else
@@ -173,6 +177,7 @@ class MyBeaconsMonitor extends BeaconsMonitor {
                         if(xBeacon.getPrettyAddress().equals(Values.iBeaconMAC[i]))
                         {
                             float Distance = xBeacon.getEstimatedDistance();//距離
+
                             //第一層 距離小於地圖最大長度才增加  以及 只接收RSSI小於指定參數的值
                             if(Distance*100 < Math.sqrt(Math.pow(Values.Map_W,2)+Math.pow(Values.Map_H,2)) && xBeacon.getAverageRssi() >= RSSI)
                             {
@@ -184,6 +189,7 @@ class MyBeaconsMonitor extends BeaconsMonitor {
                                 if(key)
                                 {
                                     TmpNew[i] = Distance*Values.Scale_W*100;
+                                    Values.distance[i] = TmpNew[i];
                                 }
                             }//第一層 距離小於地圖最大長度才增加 End
                             else
@@ -266,7 +272,7 @@ class MyBeaconsMonitor extends BeaconsMonitor {
 
         //取到小數點第二位
         NumberFormat nf = NumberFormat.getInstance();
-        nf.setMaximumFractionDigits( 2 );
+        nf.setMaximumFractionDigits(2);
 
         float[] matrixValues = new float[9];
         MySurfaceView.people_matrix.getValues(matrixValues);
@@ -307,31 +313,38 @@ class MyBeaconsMonitor extends BeaconsMonitor {
     };
 
     //TODO 進入iBeacon範圍
-    public void Dialog_Show(final int num)
+    public  void Dialog_Show(final int num)
     {
-        MainActivity.Dialog.setContentView(R.layout.dialog);//指定自定義layout
-        MainActivity.Dialog.setCanceledOnTouchOutside(true);
-        Window dialogWindow = MainActivity.Dialog.getWindow();
-        WindowManager.LayoutParams lp = dialogWindow.getAttributes();
-        //顯示的初始位置為左上角,默認為畫面中間
-        dialogWindow.setGravity(Gravity.TOP | Gravity.LEFT);
-        float[] nodeValues = new float[9];
-        Values.node_matrix[num].getValues(nodeValues);
-        lp.x = (int) nodeValues[2]; // 新位置X坐標
-        lp.y = (int) nodeValues[5]; // 新位置Y坐標
-        //lp.width = 100; // 寬度
-        //lp.height = 100; // 高度
-        lp.alpha = 0.7f; // 透明度
-        //新增自定義按鈕點擊監聽
-        Button btn = (Button)MainActivity.Dialog.findViewById(R.id.dialog_button_ok);
-        btn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                //WebView_Show(num);
-                log("Dialog_Show");
-            }
-        });
-        //顯示dialog
-        MainActivity.Dialog.show();
+
+        if(num ==0) {
+            Log.e("Button", "Buttonview");
+
+
+            Log.e("getBeaconwf", "beacon" + num);
+            MainActivity.Dialog.setContentView(R.layout.dialog);//指定自定義layout
+            MainActivity.Dialog.setCanceledOnTouchOutside(true);
+            Window dialogWindow = MainActivity.Dialog.getWindow();
+            WindowManager.LayoutParams lp = dialogWindow.getAttributes();
+            //顯示的初始位置為左上角,默認為畫面中間
+            dialogWindow.setGravity(Gravity.TOP | Gravity.LEFT);
+            float[] nodeValues = new float[9];
+            Values.node_matrix[num].getValues(nodeValues);
+            lp.x = (int) nodeValues[2]; // 新位置X坐標
+            lp.y = (int) nodeValues[5]; // 新位置Y坐標
+            //lp.width = 100; // 寬度
+            //lp.height = 100; // 高度
+            lp.alpha = 0.7f; // 透明度
+            //新增自定義按鈕點擊監聽
+            Button btn = (Button) MainActivity.Dialog.findViewById(R.id.dialog_button_ok);
+            btn.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    //WebView_Show(num);
+                    log("Dialog_Show");
+                }
+            });
+            //顯示dialog
+            MainActivity.Dialog.show();
+        }
     };
 
     /*//TODO 顯示廠商資訊

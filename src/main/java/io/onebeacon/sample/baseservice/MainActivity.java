@@ -1,10 +1,12 @@
 package io.onebeacon.sample.baseservice;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 
 import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
@@ -12,9 +14,12 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.WebView;
+import android.widget.Button;
 import android.widget.TextView;
 
 import io.onebeacon.api.OneBeacon;
@@ -45,6 +50,7 @@ public class MainActivity extends ActionBarActivity implements ServiceConnection
     public static TextView[] 			distance = new TextView[4];
     protected TextView 				    node_a,node_b,node_c,node_d;
     protected WebView wb;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,4 +152,9 @@ public class MainActivity extends ActionBarActivity implements ServiceConnection
     private void log(String msg) {
         Log.d("MainActivity", msg);
     }
+
+
+
+
+
 }
