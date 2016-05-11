@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.ActionBarActivity;
@@ -40,7 +41,6 @@ public class MainActivity extends ActionBarActivity implements ServiceConnection
     private MonitorService mService = null;
 
     protected MySurfaceView 			dragImageView;
-    public static int 					window_width, window_height;
     public static Dialog 				Dialog,DialogWeb,DialogData;
     public static TextView[] 			distance = new TextView[4];
     protected TextView 				    node_a,node_b,node_c,node_d;
@@ -53,14 +53,15 @@ public class MainActivity extends ActionBarActivity implements ServiceConnection
 
         Initial();
         /** 螢幕 寬、高 **/
-        WindowManager manager = getWindowManager();
-        window_width 	= manager.getDefaultDisplay().getWidth();
-        window_height 	= manager.getDefaultDisplay().getHeight();
+        Point size = new Point();
+        getWindowManager().getDefaultDisplay().getSize(size);
+        Values.window_width 	= size.x;
+        Values.window_height = size.y;
         dragImageView 	= (MySurfaceView) findViewById(R.id.div_main);
 
         //讓圖片 = 螢幕寬高
         Bitmap bmp = BitmapUtil.ReadBitmapById(this, R.drawable.lab,
-                window_width, window_height);
+                Values.window_width, Values.window_height);
 
 
         if (!bindService(new Intent(this, MonitorService.class), this, BIND_AUTO_CREATE)) {

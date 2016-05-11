@@ -42,6 +42,7 @@ class MyBeaconsMonitor extends BeaconsMonitor {
     private	boolean 				start		= false	;
     public 	float[]					TmpNew 		= new float[3];
     private ProgressDialog 			pd;
+    public  static  int[] 		    EachARG  		= new int[Values.num];
 
     public MyBeaconsMonitor(Context context) {
         super(context);
@@ -81,6 +82,8 @@ class MyBeaconsMonitor extends BeaconsMonitor {
             {
                 if(iBeacon.getPrettyAddress().equals(Values.iBeaconMAC[i]))
                     Values.nodeInRange[i] = true;
+
+                EachARG[i] = 0;
             }
 
             log(String.format("{%s}/%d/%d new iBeacon found: %s", uuid, maj, min, beacon));
@@ -106,6 +109,7 @@ class MyBeaconsMonitor extends BeaconsMonitor {
         for(int i = 0 ; i<TmpNew.length;i++)
         {
             TmpNew[i] = 0;
+            Values.iBeaconRS2[i] = 0;
         }
     }
 
@@ -182,8 +186,19 @@ class MyBeaconsMonitor extends BeaconsMonitor {
                         //配對偵測到的數據是屬於哪個Beacon
                         if(xBeacon.getPrettyAddress().equals(Values.iBeaconMAC[i]))
                         {
-                            float Distance = xBeacon.getEstimatedDistance();//距離
+                            float Distance = xBeacon.getEstimatedDistance();//
+                            float Rssi = xBeacon.getAverageRssi();
                             Values.iBeaconMeter[i] = Distance;
+                            if(EachARG[i] < 100){
+                                Values.iBeaconRS[i][EachARG[i]] = Rssi;
+                                EachARG[i]++;
+                                Log.d("EachARG",String.valueOf(EachARG[i]));
+                            } else{
+                                for(int j=0;j<100;j++)
+                                    Values.iBeaconRS2[i] += Values.iBeaconRS[i][j];
+                                Values.iBeaconRS2[i] = Values.iBeaconRS2[i]/100;
+                                Log.d("RS2",String.valueOf(Values.iBeaconRS2[i]));
+                            }
                             //第一層 距離小於地圖最大長度才增加  以及 只接收RSSI小於指定參數的值
                             if(Distance*100 < Math.sqrt(Math.pow(Values.Map_W,2)+Math.pow(Values.Map_H,2)) && xBeacon.getAverageRssi() >= RSSI)
                             {
@@ -305,8 +320,8 @@ class MyBeaconsMonitor extends BeaconsMonitor {
         //顯示的初始位置為左上角,默認為畫面中間
         dialogWindow.setGravity(Gravity.CENTER | Gravity.CENTER);
         WindowManager.LayoutParams lp = dialogWindow.getAttributes();
-        lp.width = MainActivity.window_width/2; // 寬度
-        lp.height = MainActivity.window_height/2; // 高度
+        lp.width = Values.window_width/2; // 寬度
+        lp.height = Values.window_height/2; // 高度
         //新增自定義按鈕點擊監聽
         Button btn = (Button)MainActivity.Dialog.findViewById(R.id.dialog_button_ok);
         btn.setOnClickListener(new View.OnClickListener() {
