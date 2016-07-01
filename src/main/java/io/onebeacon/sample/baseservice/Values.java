@@ -8,7 +8,7 @@ public class Values {
 	
 	public static 	int 		num 			 = 4;//node數量
 	public static   int 		window_width, window_height;
-	public static 	int 		Scale_W 			 = 1290  /1290;//手機畫面與真實地圖的比例尺
+	public static 	int 		Scale_W 			 = 1290  /1080;//手機畫面與真實地圖的比例尺
 	public static 	int 		Scale_H 		 	 = 1880  /1880;
 	public static	int			Map_W			 =1290;//真實地圖的寬
 	public static	int			Map_H			 =1880;
@@ -20,7 +20,8 @@ public class Values {
 	public static  	float[]		iBeaconArgSecond  = new float[num];//還沒用到
 	public static  	float[]		iBeaconSd 		 = new float[num];//計算每個beacon距離標準差
 	public static  	float[][]	iBeaconNew 		 = new float[num][10];
-	public static	String[]	iBeaconMAC		 = {"20:C3:8F:D5:02:42","20:C3:8F:D5:2D:90","20:C3:8F:D5:2D:CA",null};
+	public static	String[]	iBeaconMAC		 = {"20:C3:8F:D5:02:42","20:C3:8F:D5:2D:90","20:C3:8F:D5:2D:CA","20:91:48:35:94:B7","98:7B:F3:57:E7:A9","98:7B:F3:57:E9:36",null};
+	public static	int[]		iBeaconMinor		 = {283,595,600,578,11664,11722};
 	public static   float[][]	iBeaconRS		= new float[num][100];
 	public static   float[]		iBeaconRS2		= new float[num];
 	//iBeacon
