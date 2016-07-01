@@ -20,10 +20,14 @@ public class Values {
 	public static  	float[]		iBeaconArgSecond  = new float[num];//還沒用到
 	public static  	float[]		iBeaconSd 		 = new float[num];//計算每個beacon距離標準差
 	public static  	float[][]	iBeaconNew 		 = new float[num][10];
-	public static	String[]	iBeaconMAC		 = {"20:C3:8F:D5:02:42","20:C3:8F:D5:2D:90","20:C3:8F:D5:2D:CA","20:91:48:35:94:B7","98:7B:F3:57:E7:A9","98:7B:F3:57:E9:36",null};
+	public static	String[]	iBeaconMAC		 = {"20:C3:8F:D5:02:42","20:C3:8F:D5:2D:90","20:C3:8F:D5:2D:CA","20:91:48:35:94:B7","98:7B:F3:57:E7:A9","98:7B:F3:57:E9:36"};
 	public static	int[]		iBeaconMinor		 = {283,595,600,578,11664,11722};
 	public static   float[][]	iBeaconRS		= new float[num][100];
 	public static   float[]		iBeaconRS2		= new float[num];
+    public static double        paraA           = 0.828684609;
+    public static double        paraB           = 5.512875746;
+    public static double        paraC           = 0.273255852;
+            ;
 	//iBeacon
 	public static final String 	EXTRAS_TARGET_ACTIVITY 			= "extrasTargetActivity";
 	public static final String 	EXTRAS_BEACON 		  			= "extrasBeacon";
