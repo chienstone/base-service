@@ -29,8 +29,9 @@ public class CalculateArg {
 	public final IndoorLoc in1 = new IndoorLoc(0, 0, 0); // Blue   DC:3B:A0:38:3B:33
 	public IndoorLoc in2 = new IndoorLoc(0, 4.0, 0); 	 // Purple FA:D1:3D:2E:D0:AB
 	public IndoorLoc in3 = new IndoorLoc(3.3, 2.0, 0);   // Green  C5:97:21:39:F8:78
-	public static int num = 4;//�����X�ӭȫ�,�N���A�W�[�Ӥj�ΤӤp����
-	public static int maxSize = 14;
+	//public static int num = 4;//�����X�ӭȫ�,�N���A�W�[�Ӥj�ΤӤp����
+	//搜集幾次數據進行運算
+    public static int maxSize = 14;
 
 	public static class MyMap {
 
@@ -45,47 +46,45 @@ public class CalculateArg {
     	public MyMap() {
     		map = new HashMap<Float, Integer>();
     	}
-    	public void addValue(Float f) {
-    		f *= Values.Scale_W*100; //公尺距離轉像素距離
-    		count++;
-	    	if ((max2 == 0f || f > max2) && map.size() < maxSize) {
-                max2 = f;
-                if((max == 0f || max2 > max))
-                    max = f;
-	    	}
-	    	if ((min2 == 0f || f < min2) && map.size() < maxSize) {
-	    		min2 = f;
-                if((min == 0f || min > min2))
-                    min = f;
-	    	}
-	    	if( map.containsKey(f)){		
-		    	int count = map.get(f);			
-		    	count++;			
-		    	map.put(f, count);	
-	    	}	
-	    	else{	
-	    		map.put(f, 1);
-	    	}
+    	//除去最大最小共兩個極端植
+        public void addValue(Float f) {
+            f *= Values.Scale_W*100; //公尺距離轉像素距離
+            count++;
+            if ((max2 == 0f || f > max2) && map.size() < maxSize) {
+                if(max == 0f || f > max) max = f;
+                else max2 = f;
+            }
+            if ((min2 == 0f || f < min2) && map.size() < maxSize) {
+                if(min == 0f || f < min) min = f;
+                else min2 = f;
+            }
+
+            if( map.containsKey(f)){
+                int count = map.get(f);
+                count++;
+                map.put(f, count);
+            }
+            else{
+                map.put(f, 1);
+            }
+            //Log.i(LOG, "map Count = " +  this.map.size());
     	}
-    	
-    	public void addValueSecond(Float f) {
-    		f *= Values.Scale_W*100; //�Z�� * ��Ҥ� * ���⦨���� 
+
+        //除去最大最小前二個；共四個極端植
+        public void addValueSecond(Float f) {
+    		f *= Values.Scale_W*100; //將實際距離轉為地圖距離
     		count++;
-	    	if ((max == 0f || f > max) && map.size() < maxSize) {
-	
-	    		max = f;		
-	    	}		
-	    	if ((min == 0f || f < min) && map.size() < maxSize) {
-	    		min = f;		
-	    	}
-	    	if( map.containsKey(f)){		
-		    	int count = map.get(f);			
-		    	count++;			
-		    	map.put(f, count);	
-	    	}	
-	    	else{	
-	    		map.put(f, 1);
-	    	}
+            if ((max == 0f || f > max) && map.size() < maxSize) max = f;
+            if ((min == 0f || f < min) && map.size() < maxSize) min = f;
+
+            if( map.containsKey(f)){
+                int count = map.get(f);
+                count++;
+                map.put(f, count);
+            }
+            else map.put(f, 1);
+            Log.i(LOG, "all Count = " +  this.map.size());
+
     	}
 	}
 	
@@ -122,6 +121,7 @@ public class CalculateArg {
 		return myMap.avg;
 	}
 
+    //計算樣本數
     public static boolean dataAmount(MyMap myMap) {
         boolean full = true;
         int allCount = 0;
@@ -142,7 +142,8 @@ public class CalculateArg {
         return full;
     }
 	
-	public static Float SD(MyMap myMap) {
+	//計算標準差
+    public static Float SD(MyMap myMap) {
 		int allCount = 0;
 		float allSum = 0f;
 		Set<Float> keys = myMap.map.keySet();
@@ -160,7 +161,7 @@ public class CalculateArg {
 		return res;
 	}
 
-
+    //計算基本平均
 	public Double rollingAverage(List<Double> list) {
 		Double acum = 0.0;
 		for (Double d : list) {

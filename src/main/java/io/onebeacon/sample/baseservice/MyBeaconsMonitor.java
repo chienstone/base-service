@@ -30,38 +30,30 @@ class MyBeaconsMonitor extends BeaconsMonitor {
     private static final String		TAG = MyBeaconsMonitor.class.getSimpleName();
     private Context myBeaconsMonitor;
 
-
     private CalculateDistance calculateDistance = new CalculateDistance();
     private CalculateArg.MyMap[] 	iBeacon 	= new CalculateArg.MyMap[4];//iBeacon距離
-    private int 					FREQUENCY  	= CalculateArg.num;//多久結束調適
+    private int 					FREQUENCY  	= Values.num;//多久結束調適
     private int 					RSSI 	   	= -100 	;//只接收大於多少RSSI的數值
     public  static  int 			ARG  		= 10	;//接收幾次值算一次定位
-    public  static	int 			tmp			= 0		;//紀錄BeaconNew接收到第幾次
+    public  static	int 			tmp			= 0		;//BeaconNew接收記次記錄
     private	boolean 				key			= false	;//確認是否所有beacon都偵測超過FREQUENCY的數量
     private	boolean 				start		= false	;
     public 	float[]					TmpNew 		= new float[3];
     private ProgressDialog 			pd;
     public  static  int[] 		    EachARG  	= new int[Values.num];
 
-
     public MyBeaconsMonitor(Context context) {
         super(context);
         myBeaconsMonitor = context;
-
         Initial();
-    }
-
-    @Override
-    protected void onBeaconChangedRange(Rangeable rangeable) {
-        super.onBeaconChangedRange(rangeable);
-        //log(String.format("Range changed to %s for %s", rangeable.getRange(), rangeable));
     }
 
     @Override
     protected void onBeaconChangedRssi(Beacon beacon) {
         super.onBeaconChangedRssi(beacon);
+
         if (beacon.getType() == Beacon.Type.IBEACON) {
-            Apple_iBeacon xBeacon = (Apple_iBeacon) beacon;
+            //Apple_iBeacon xBeacon = (Apple_iBeacon) beacon;
             Collection<Beacon> onyxBeacons = filterBeacons(this.getBeacons());
             Log.e(TAG, "[0]=" + iBeacon[0].count + " [1]=" + iBeacon[1].count + " [2]=" + iBeacon[2].count);
             //log(String.format("Beacon %s Rssi changed to %s", xBeacon.getMinor(), beacon.getAverageRssi()));
@@ -76,44 +68,18 @@ class MyBeaconsMonitor extends BeaconsMonitor {
         if (beacon.getType() == Beacon.Type.IBEACON) {
             // example usage for an iBeacon
             Apple_iBeacon iBeacon = (Apple_iBeacon) beacon;
-            int maj = iBeacon.getMajor();
+            //UUID uuid = iBeacon.getUUID();
+            //int maj = iBeacon.getMajor();
             int min = iBeacon.getMinor();
-            UUID uuid = iBeacon.getUUID();
 
-            for(int i = 0 ;i<Values.num;i++)
-            {
+            for(int i = 0 ;i<Values.num;i++) {
                 if(iBeacon.getPrettyAddress().equals(Values.iBeaconMAC[i]))
                     Values.nodeInRange[i] = true;
 
-                EachARG[i] = 0;
+                //EachARG[i] = 0;
             }
 
-            int beaconnum = 0;
-            switch (min){
-                case 283:
-                    beaconnum = 1;
-                    break;
-                case 595:
-                    beaconnum = 2;
-                    break;
-                case 600:
-                    beaconnum = 3;
-                    break;
-                case 578:
-                    beaconnum = 4;
-                    break;
-                case 11664:
-                    beaconnum = 5;
-                    break;
-                case 11722:
-                    beaconnum = 6;
-                    break;
-                default:
-                    break;
-            }
-            log(String.format("{%s}/%d/%d new iBeacon found:%d", uuid, maj, min, beaconnum));
-            //log(String.format("{%s}/%d/%d new iBeacon found: %s", uuid, maj, min, beacon));
-
+            Beacon_Identify(min);
         }
 
         // see Beacon.Type.* for more types, and io.onebeacon.api.spec.* for beacon type interfaces
@@ -132,8 +98,7 @@ class MyBeaconsMonitor extends BeaconsMonitor {
         iBeacon[2] = new CalculateArg.MyMap();
         iBeacon[3] = new CalculateArg.MyMap();
 
-        for(int i = 0 ; i<TmpNew.length;i++)
-        {
+        for(int i = 0 ; i<TmpNew.length;i++) {
             TmpNew[i] = 0;
             Values.iBeaconRS2[i] = 0;
         }
@@ -141,9 +106,8 @@ class MyBeaconsMonitor extends BeaconsMonitor {
 
     //TODO 取得Beacon資訊
     private void mainProcess(Collection<Beacon> onyxBeacons) {
-        if(key && onyxBeacons.size()>=3)
-        {
-            log("test:11111111111111");
+        if(key && onyxBeacons.size() >= Values.num - 1) {
+            log("mainProcess:step_3");
             //如果偵測次數大於FREQUENCY,且偵測到三個beacon
             //計算所有Beacon距離的平均
             Beacon_Arg();
@@ -154,40 +118,35 @@ class MyBeaconsMonitor extends BeaconsMonitor {
             int num = MySurfaceView.realtime();
             Data_Show();
             //抵達beacon觸發
-            if(num != Values.num)
-            {
+            //TODO 需添加強訊號無條件驅動
+            if(num != Values.num) {
                 //如果沒有顯示webview，在跳Dilaog
-                if(!MainActivity.DialogWeb.isShowing())
-                {
+                if(!MainActivity.DialogWeb.isShowing()) {
                     if(!MainActivity.Dialog.isShowing())
                         Dialog_Show(num);
                 }
             }
             else
-            {
                 MainActivity.Dialog.cancel();
-            }
+
         }
-        else if (start) //check data size
-        {
-            log("test:22222222222");
+        else if (start) { //check data size
+            log("mainProcess:step_2");
             //確認是否所有beacon都偵測超過FREQUENCY的數量
-            key=Check_Beacon_Num();
-            Log.e("key="+key,"tmp="+tmp);
-            if(!key)
-            {
+            key = Check_Beacon_Num();
+            //Log.e("key="+key,"tmp="+tmp);
+
+            if(!key) {
                 if(!pd.isShowing())
                     log("調適");
                 pd = ProgressDialog.show(myBeaconsMonitor, "調適", "調適中，請稍後……");
             }
             else
-            {
                 pd.dismiss();// 关闭ProgressDialog
-            }
+
         }
-        else if(!start && onyxBeacons.size()>=3 && !MainActivity.Dialog.isShowing())//check iBeacon size
-        {
-            log("test:3333333333333");
+        else if(!start && onyxBeacons.size()>=3 && !MainActivity.Dialog.isShowing()) { //check iBeacon count
+            log("mainProcess:step_1");
             DialogAdj_Show();
         }
     }
@@ -203,71 +162,78 @@ class MyBeaconsMonitor extends BeaconsMonitor {
             for (Beacon beacon : beacons) {
                 if (beacon.getType() == Beacon.Type.IBEACON) {
                     Apple_iBeacon xBeacon = (Apple_iBeacon) beacon;
+
                     if (xBeacon.getUUID().toString().equalsIgnoreCase(Values.ONYX_BEACON_PROXIMITY_UUID)) {
                         filteredBeacons.add(xBeacon);
-
                         //System.out.println("MAC: %s " +  xBeacon.getPrettyAddress());
+
                         for (int i = 0; i < Values.num; i++) {
                             //log("MAC:" + xBeacon.getPrettyAddress());
                             //配對偵測到的數據是屬於哪個Beacon
                             if (xBeacon.getPrettyAddress().equals(Values.iBeaconMAC[i])) {
-                                float Distance = xBeacon.getEstimatedDistance();
                                 float Rssi = xBeacon.getAverageRssi();
-                                float calculateDis =calculateDistance.getDistance(Rssi);
-                                log("Distance{" + xBeacon.getMinor() + "}-" + calculateDis);
-                                log("Distance{" + xBeacon.getMinor() + "}-" + Distance);
-                                //Values.iBeaconMeter[i] = Distance;
 
-                                /*
-                                //測RSSI值
-                                if (EachARG[i] < 100) {
-                                    Values.iBeaconRS[i][EachARG[i]] = Rssi;
-                                    EachARG[i]++;
-                                    //Log.d("EachARG",String.valueOf(EachARG[i]));
-                                } else {
-                                    for (int j = 9; j < 80; j++) {
-                                        Arrays.sort(Values.iBeaconRS[i]);
-                                        Values.iBeaconRS2[i] += Values.iBeaconRS[i][j];
+                                //RSSI強度是否大於門檻值
+                                if ( Rssi >= RSSI) {
+                                   //float Distance = xBeacon.getEstimatedDistance();
+                                 float distance = calculateDistance.getDistance(Rssi);
+                                 //float calculateDis = calculateDistance.getDistance(Rssi);
+                                 //log("Distance[" + xBeacon.getMinor() + "]-" + calculateDis);
+                                 log("Distance[" + xBeacon.getMinor() + "]-" + distance);
+                                 //Values.iBeaconMeter[i] = Distance;
+
+                                    /*
+                                    //測RSSI值
+                                    if (EachARG[i] < 100) {
+                                        Values.iBeaconRS[i][EachARG[i]] = Rssi;
+                                        EachARG[i]++;
+                                        //Log.d("EachARG",String.valueOf(EachARG[i]));
+                                    } else {
+                                        for (int j = 9; j < 80; j++) {
+                                            Arrays.sort(Values.iBeaconRS[i]);
+                                            Values.iBeaconRS2[i] += Values.iBeaconRS[i][j];
+                                        }
+                                        Values.iBeaconRS2[i] = Values.iBeaconRS2[i] / 80;
+                                        Log.d("RS2", String.valueOf("1 [" + Values.iBeaconRS2[0] + "]    2[" + Values.iBeaconRS2[1] + "]    3[" + Values.iBeaconRS2[2] + "]"));
+                                    }*/
+
+                                    //第一層 距離小於地圖最大長度才增加
+                                    if (distance * 100 < Math.sqrt(Math.pow(Values.Map_W, 2) + Math.pow(Values.Map_H, 2))) {
+                                        //儲存所有數據
+                                        //log("Distance=" + String.valueOf(distance) +"iBeacon["+ i +"]," + "MAC:" + Values.iBeaconMAC[i]);
+                                        iBeacon[i].addValue(distance);
+
+                                        //紀錄距離資訊
+                                        if (key) {
+                                            TmpNew[i] = distance * Values.Scale_W * 100;
+                                            Check_Beacon_Tmp();
+                                        }
+                                    }//第一層 距離小於地圖最大長度才增加 End
+                                    else {
+                                        log("abnormal distance");
+                                        break;
                                     }
-                                    Values.iBeaconRS2[i] = Values.iBeaconRS2[i] / 80;
-                                    Log.d("RS2", String.valueOf("1 [" + Values.iBeaconRS2[0] + "]    2[" + Values.iBeaconRS2[1] + "]    3[" + Values.iBeaconRS2[2] + "]"));
-                                }*/
-
-                                //第一層 距離小於地圖最大長度才增加  以及 只接收RSSI小於指定參數的值
-                                if (Distance * 100 < Math.sqrt(Math.pow(Values.Map_W, 2) + Math.pow(Values.Map_H, 2)) && xBeacon.getAverageRssi() >= RSSI) {
-                                    //儲存所有數據
-                                    //log("Distance=" + String.valueOf(Distance) +"iBeacon["+ i +"]," + "MAC:" + Values.iBeaconMAC[i]);
-                                    iBeacon[i].addValue(Distance);
-
-                                    //紀錄距離資訊
-                                    if (key) {
-                                        TmpNew[i] = Distance * Values.Scale_W * 100;
-                                        Check_Beacon_Tmp();
-                                    }
-                                }//第一層 距離小於地圖最大長度才增加 End
-                                else
-                                    break;
+                                }
                             }
                         }//for End
                     }
                 }
             }
         }//beacons.size()>=3 End
+
         return filteredBeacons;
     }
 
     //TODO 確認Beacon獲得的數據大於FREQUENCY
     private boolean Check_Beacon_Num() {
         boolean key = true;
-        log("Check_Beacon_Num");
+
         //暫時-1 因為只有三顆beacon
-        for(int i = 0; i<Values.num - 1; i++)
-        {
+        for(int i = 0; i<Values.num - 1; i++) {
             if(iBeacon[i].count < FREQUENCY)
-            {
                 key = false;
-            }
         }
+        log("Check_Beacon_Num:" + key);
         return key;
     }
 
@@ -275,26 +241,23 @@ class MyBeaconsMonitor extends BeaconsMonitor {
     private void Check_Beacon_Tmp() {
         boolean key = true;
         //暫時-1 因為只有三顆beacon
-        for(int i = 0 ; i<Values.num - 1 ; i++)
-        {
-            if(TmpNew[i] == 0)
-            {
+        for(int i = 0 ; i<Values.num - 1 ; i++) {
+            if(TmpNew[i] == 0) {
                 key = false;
                 break;
             }
         }
-        if(key)
-        {
-            for(int i = 0 ; i<Values.num - 1 ; i++)
-            {
+
+        if(key) {
+            for(int i = 0 ; i<Values.num - 1 ; i++) {
                 log("TmpNew[" + i + "]"+ TmpNew[i]);
                 Values.iBeaconNew[i][tmp] = TmpNew[i];
                 TmpNew[i] = 0;
             }
-            if(tmp >= ARG-1)
-                tmp = 0;
-            else
-                tmp++;
+
+            //矩陣參數循環操作
+            if(tmp >= ARG - 1) tmp = 0;
+            else tmp++;
         }
     }
 
@@ -304,28 +267,54 @@ class MyBeaconsMonitor extends BeaconsMonitor {
         {
             if(iBeacon[i].count % 10 == 0)
                 Values.iBeaconArg[i] = CalculateArg.cutMaxMinAverage(iBeacon[i]);
-            //iBeaconArg單位是像度距離,log顯是是meter
-            Log.e(TAG,"iBeaconArg["+i+"] ="+((Values.iBeaconArg[i]) / 100) );
+            //iBeaconArg單位是像度距離,log顯示為meter
+            Log.e(TAG,"iBeaconArg["+i+"] ="+((Values.iBeaconArg[i]) / 100 / Values.Scale_W) );
         }
     }
 
-    //TODO 清理累積數據
+    //清理累積數據
     private void Beacon_Gc() {
-        for(int i = 0 ;i<Values.num - 1;i++)
-        {
-            if(CalculateArg.dataAmount(iBeacon[i])){
+        for(int i = 0 ;i<Values.num - 1;i++) {
+            if(CalculateArg.dataAmount(iBeacon[i])) {
                 iBeacon[i].map.clear();
             }
             //Log.e(TAG,"iBeaconArg["+i+"] ="+((Values.iBeaconArg[i]) / 100) );
         }
     }
 
+    private void Beacon_Identify(int min) {
+        int beaconnum = 0;
+        switch (min){
+            case 283:
+                beaconnum = 1;
+                break;
+            case 595:
+                beaconnum = 2;
+                break;
+            case 600:
+                beaconnum = 3;
+                break;
+            case 578:
+                beaconnum = 4;
+                break;
+            case 11664:
+                beaconnum = 5;
+                break;
+            case 11722:
+                beaconnum = 6;
+                break;
+            default:
+                break;
+        }
+        log(String.format("%d new iBeacon found:%d", min, beaconnum));
+    }
+
     //右上角模擬數據
     private void Data_Show() {
 
-        //取到小數點第三位
+        //取到小數點第一位
         NumberFormat nf = NumberFormat.getInstance();
-        nf.setMaximumFractionDigits(3);
+        nf.setMaximumFractionDigits(1);
 
         float[] matrixValues = new float[9];
         MySurfaceView.people_matrix.getValues(matrixValues);
@@ -335,7 +324,7 @@ class MyBeaconsMonitor extends BeaconsMonitor {
             Values.node_matrix[i].getValues(nodeValues);
             //計算直線距離
             //MainActivity.distance[i].setText(String.valueOf( nf.format( (Math.sqrt(Math.pow(matrixValues[2] - nodeValues[2], 2) + Math.pow(matrixValues[5] - nodeValues[5], 2))) * (Values.Scale_W)/100 )));
-            MainActivity.distance[i].setText(String.valueOf(nf.format(Values.iBeaconMeter[i])));
+            MainActivity.distance[i].setText(String.valueOf(nf.format(Values.iBeaconArg[i] / 100 / Values.Scale_W)));
             //Log.e("ID="+i,"兩點距離="+distance[i].getText());
 
         }

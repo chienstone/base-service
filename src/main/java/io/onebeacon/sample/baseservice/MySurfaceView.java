@@ -143,7 +143,7 @@ public class MySurfaceView extends SurfaceView implements SurfaceHolder.Callback
         //模擬 people_matrix.setTranslate(275, 546);
         
         Log.e("bitmapWidth="+bitmapWidth,"bitmapHeight"+bitmapHeight);
-        for(int i=0;i<Values.num;i++)
+        for(int i=0;i<3;i++)
         {
         	Values.node_matrix[i].setTranslate(textPoint[i].x, textPoint[i].y);
         	//iBeacon[i].getNodeMatrix().setTranslate(textPoint[i].x+100,textPoint[i].y);
@@ -431,39 +431,38 @@ public class MySurfaceView extends SurfaceView implements SurfaceHolder.Callback
     }*/
 
     //TODO 計算三點相交座標
-    private static double[] Intersect() {
+    private static double[] Intersect()
+    {
     	double[] intersect = {0,0,0,0};// x1=0 , y1=1 , x2=2 , vy2=3;
     	Double[] r={0.0,0.0,0.0};
     	
     	//第一次計算平均的位置
-    	if(first)
-    	{ 		
+    	if(first) {
     		r[0] = (double) Values.iBeaconArg[0];
         	r[1] = (double) Values.iBeaconArg[1];
         	r[2] = (double) Values.iBeaconArg[2];
         	Log.e("first="+first,"r1="+r[0]+",r2="+r[1]+",r3="+r[2]);
-        	//NOTE 測試
+        	//TODO 測試用
         	//first = false;
     	}
     	//接下來計算最新的位置
-    	else
-    	{
-            if(MyBeaconsMonitor.tmp == MyBeaconsMonitor.ARG -1)
-    		{
-            	for(int i=0;i<Values.num-1;i++)
-            	{
+    	else {
+            //如果所有採用的Beacon都搜集足夠的資料就進行運算
+            if(MyBeaconsMonitor.tmp == MyBeaconsMonitor.ARG -1) {
+            	for(int i=0;i<Values.num-1;i++) {
             		float sum=0;
-            		for(int j=0;j<MyBeaconsMonitor.ARG;j++)
-            		{
+
+            		for(int j=0;j<MyBeaconsMonitor.ARG;j++) {
             			sum += Values.iBeaconNew[i][j];
             		}
             		r[i] = (double) sum / MyBeaconsMonitor.ARG;
             	}
             	Log.e("continue="+first,"r1="+r[0]+",r2="+r[1]+",r3="+r[2]);
+
     		}
     	}
-    	if(r[0]!=0 && r[1]!=0 && r[2]!=0)
-    	{
+
+    	if(r[0]!=0 && r[1]!=0 && r[2]!=0) {
     		/*intersect[1] = (Math.pow(r[0], 2) - Math.pow(r[1], 2) + Math.pow(textPoint[1].y, 2)) / (2 * textPoint[1].y);
     		double f1 = (Math.pow(r[0], 2) - Math.pow(r[2], 2) + Math.pow(textPoint[2].x, 2) + Math.pow(textPoint[2].y, 2)) / (2 * textPoint[2].y);
     		double f2 = ((textPoint[2].x) / (textPoint[2].y)) * intersect[1];
@@ -479,7 +478,7 @@ public class MySurfaceView extends SurfaceView implements SurfaceHolder.Callback
             if(intersect[1] <= 0) intersect[1] = 0;
             else if(intersect[1] >= 1000 ) intersect[1] = 1000;
 
-            Log.e("intersect msg","is not zero-(" + intersect[0] + "," + intersect[1] +")");
+            Log.e("location  msg","is not zero-(" + intersect[0] + "," + intersect[1] +")");
     	}
     	else
     	{
